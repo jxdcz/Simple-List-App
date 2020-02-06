@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Simple List App</string>
+    <string name="text_click_to_sync">No data found, click Refresh to sync</string>
+    <string name="refresh">Refresh data</string>
+
+
+    <string name="list_label_master_user">Master user</string>
+    <string name="list_label_regular_user">Regular user</string>
+</resources>
