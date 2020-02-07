@@ -1,15 +1,13 @@
 package cz.jirix.simplelistapp.repository
 
+import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import cz.jirix.simplelistapp.api.ApiProvider
-import cz.jirix.simplelistapp.model.Progress
 import cz.jirix.simplelistapp.model.User
 import cz.jirix.simplelistapp.persistence.DbProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -26,20 +24,18 @@ class UserRepository {
         }
     }
 
-    suspend fun fetchUsersFromApi(): LiveData<Progress> {
-        val liveData = MutableLiveData<Progress>()
-        try {
-            withContext(Dispatchers.Main) { liveData.value = Progress.loading() }
+    suspend fun fetchUsersFromApi(): Boolean {
+        return try {
             userApi.loadUsers().users.let {
                 userDao.insertAll(it)
             }
-            withContext(Dispatchers.Main) { liveData.value = Progress.success() }
+            true
         } catch (e: IOException) {
-            withContext(Dispatchers.Main) { liveData.value = Progress.error() }
+            Log.e("UserRepository", e.toString())
+            false
         } catch (e: HttpException) {
-            withContext(Dispatchers.Main) { liveData.value = Progress.error() }
-
+            Log.e("UserRepository", e.toString())
+            false
         }
-        return liveData
     }
 }

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
@@ -19,6 +20,15 @@ class UserListFragment : Fragment() {
     private var columnCount = 1
     private val usersAdapter = UserRecyclerViewAdapter { user -> onUserClicked(user) }
     private val viewModel: UserListViewModel by viewModels()
+    private val loadingStateObserver: (Progress) -> Unit = {
+        button_refresh.showProgress(it.state == Progress.LOADING)
+        if (it.state == Progress.ERROR) {
+            showErrorToast()
+        }
+        if (it.state != Progress.LOADING) {
+            viewModel.resetProgress()
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,14 +51,16 @@ class UserListFragment : Fragment() {
         viewModel.getUsers().observe(viewLifecycleOwner) { users ->
             onUsersUpdated(users)
         }
-        viewModel.getLoadingProgress().observe(viewLifecycleOwner) {
-            button_refresh.showProgress(it.state == Progress.LOADING)
-        }
+        viewModel.getLoadingProgress().observe(viewLifecycleOwner, loadingStateObserver)
     }
 
     override fun onStop() {
         super.onStop()
         viewModel.cancelRefresh()
+    }
+
+    private fun showErrorToast() {
+        Toast.makeText(context, getString(R.string.error_fetch_failed), Toast.LENGTH_SHORT).show()
     }
 
     private fun onUsersUpdated(users: List<User>) {

@@ -4,14 +4,10 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.map
 import cz.jirix.simplelistapp.model.Progress
 import cz.jirix.simplelistapp.model.User
 import cz.jirix.simplelistapp.repository.RepositoryProvider
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class UserListViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -27,14 +23,22 @@ class UserListViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun refreshUsersFromApi() {
-        runningJob = CoroutineScope(Dispatchers.IO).launch {
-            userRepository.fetchUsersFromApi().map { loadingProgress.value = it }
+        runningJob = CoroutineScope(Dispatchers.Main).launch {
+            loadingProgress.value = Progress.loading()
+            val success = withContext(Dispatchers.IO) { userRepository.fetchUsersFromApi() }
+            loadingProgress.value = if (success) Progress.success() else Progress.error()
         }
     }
 
     fun cancelRefresh() {
         if (runningJob?.isActive == true) {
             runningJob?.cancel()
+        }
+    }
+
+    fun resetProgress() {
+        if (loadingProgress.value?.state != Progress.IDLE) {
+            loadingProgress.value = Progress.idle()
         }
     }
 }
