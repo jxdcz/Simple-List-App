@@ -23,3 +23,4 @@ Todo:
 - Dimensions to dimens.xml
 - If bigger, use DI - now solved using provider classes available globally
 - Add lint/detekt to the project
+- Test more
