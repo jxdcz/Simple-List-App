@@ -4,14 +4,14 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import cz.jirix.simplelistapp.getRepositoryProvider
 import cz.jirix.simplelistapp.model.Progress
 import cz.jirix.simplelistapp.model.User
-import cz.jirix.simplelistapp.repository.RepositoryProvider
 import kotlinx.coroutines.*
 
 class UserListViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val userRepository = RepositoryProvider.INSTANCE.user
+    private val userRepository = application.getRepositoryProvider().user
     private var runningJob: Job? = null
     private val loadingProgress = MutableLiveData<Progress>()
 

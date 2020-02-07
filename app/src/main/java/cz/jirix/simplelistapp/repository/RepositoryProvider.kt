@@ -1,11 +1,13 @@
 package cz.jirix.simplelistapp.repository
 
-class RepositoryProvider private constructor() {
+import cz.jirix.simplelistapp.api.ApiProvider
+import cz.jirix.simplelistapp.persistence.AppDatabase
 
-    companion object {
-        val INSTANCE = RepositoryProvider()
-    }
+class RepositoryProvider(
+    private val apiProvider: ApiProvider,
+    private val appDatabase: AppDatabase
+) {
 
-    val user by lazy { UserRepository() }
+    val user by lazy { UserRepository(apiProvider.usersApi, appDatabase) }
 
 }
